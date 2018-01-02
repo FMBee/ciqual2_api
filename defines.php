@@ -1,7 +1,7 @@
 <?php
 
-	define('_CIQUAL_PATH', 	'.\\');	//dossier courant
-	define('_MODEL_FILE', 	'XXX_2017 11 21.xml');
+	define('_CIQUAL_PATH', 	'.\\');		// dossier courant
+	define('_MODEL_FILE', 	'XXX_2017 11 21.xml');		// modèle des fichiers XML (alim, alim_grp, ...)
 	
 	$_LIST_FILES = array(
 			'alim',
