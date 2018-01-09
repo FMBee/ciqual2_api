@@ -42,12 +42,12 @@
 	);
 	$_TABLE = array(
 				array(
-					'ingredients',
-					'categories'
+					'alim',
+// 					'ingredients',
 				),
 				array(
-					'ingredients' => 'ing',
-					'categories' => 'cat'
+					'alim' => 'alim',
+// 					'categories' => 'cat'
 				)
 	);
 	$_WHERE = array(
@@ -139,6 +139,8 @@
 	}
 	
 	function valid_url() {
+		
+		global $_MESS;
 		
 		if (!isset($_GET['table']) | !isset($_GET['where']))	return $_MESS[0];
 

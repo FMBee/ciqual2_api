@@ -13,6 +13,6 @@
 
 	define('_DBSERVER',	'mysql:host=localhost;dbname=ciqual2_api');
 	define('_DBUSER',	'root');
-	define('_DBPWD',	'');
+	define('_DBPWD',	'eclipse');
 	
 	
