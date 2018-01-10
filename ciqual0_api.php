@@ -1,22 +1,20 @@
 <?php
 
 	/**
-	 * appel PHP par [$data = file_get_contents($url);]
+	 * appel PHP par file_get_contents($url)
 	 * 
 	 * $url = {serveur}/ciqual_api.php?table=?&where=?[values=?][&key=?][mode=_AAC]
 	 * table 	: {ingredients, categories}
 	 * where 	: {_ALL, _KEY, [recherche]}
 	 * 				_ALL : tous les enregistrements
-	 * 				_KEY : un enregistrement -> associer l'argument [key]
-	 * 				_CAT : ingredients d'une catégories -> associer l'argument [key={cat_code}]
+	 * 				_KEY : un enregistrement - associer l'argument [key]
 	 * 				[recherche] : partie du nom (%foo%)
 	 * values 	: {yes, no} / default:no 	//opère sur ingredients
 	 * key		: {ORIGGPCD, ORIGFDCD}
 	 * 				ORIGGPCD : code catégorie
 	 * 				ORIGFDCD : code ingrédient
-	 * order	: champs tri des résultats / default(auto):{ing_name, cat_name}
 	 * mode		: {_AAC, ~} / default:~
-	 * 				_AAC : AjaxAutoComplete	-> positionner [where=xx]
+	 * 				_AAC : AjaxAutoComplete
 	 * 
 	 * @return Json file avec ligne(s) de la base ou message 'error' ou message 'norecordsfound'
 	 * 
@@ -43,17 +41,18 @@
 			'Erreur de connexion.'
 	);
 	$_TABLE = array(
+				array(
 					'alim',
-//					'categories'
-	);
-	$_PREFIX = array(
+// 					'ingredients',
+				),
+				array(
 					'alim' => 'alim',
-//					'categories' => 'cat'
+// 					'categories' => 'cat'
+				)
 	);
 	$_WHERE = array(
 					'_ALL',
-					'_KEY',
-					'_CAT'
+					'_KEY'
 	);
 	$_VALUES = array(
 					'yes',
@@ -68,52 +67,42 @@
 	try {
 		$pdo = new PDO(_DBSERVER, _DBUSER, _DBPWD);
 		$pdo->query('SET NAMES UTF8');
-		
+	
 	} catch (Exception $e) {
+		
 		error($_MESS[4]);
 	}
 
 	set_defaults();
-	
 	$table 	= $_GET['table'];
 	$where	= $_GET['where'];
 	$values	= $_GET['values'];
 	$key	= $_GET['key'];
-	$order	= $_GET['order'];
 	$mode	= $_GET['mode'];
 	
-	set_specials();
-	
-	$sql  = 'SELECT *';
+	$sql = 'SELECT *';
 	$sql .= ' FROM ' .$table;
-	$sql .= ( $table == $_TABLE[0] && $values == $_VALUES[0] ? '_values' : '' );	//valeurs ingrédient
+	$sql .= ( $table == $_TABLE[0][0] && $values == $_VALUES[0] ? '_values' : '' );
 	$sql .= '_details ';
 	
 	switch ($where) {
-		
 		case $_WHERE[0]:
 			$sql .= '';
 			break;
 		case $_WHERE[1]:
-			$sql .= ' WHERE prefixX_code = ' .$key;
-			break;
-		case $_WHERE[2]:
-			$sql .= ' WHERE prefix1_code = ' .$key;
+			$sql .= ' WHERE prefix_code = ' .$key;
 			break;
 		default: 
-			$sql .= " WHERE prefixX_name LIKE '%" .$where ."%'"; 
+			$sql .= " WHERE prefix_name LIKE '%" .$where ."%'"; 
 	}
+	$sql .= ' ORDER BY prefix_name ';
 	
-	$sql .= ' ORDER BY ' .$order;
-	
-	$sql = str_replace('prefixX', $_PREFIX[ $table ], $sql);
-	$sql = str_replace('prefix0', $_PREFIX[ $_TABLE[0] ], $sql);
-	$sql = str_replace('prefix1', $_PREFIX[ $_TABLE[1] ], $sql);
+	$sql = str_replace('prefix', $_TABLE[1][$table], $sql);
 	
 	$req = $pdo->prepare($sql);
 	$req->execute();
 	$data = $req->fetchAll(PDO::FETCH_ASSOC);
-	
+
 	if (!$data)	{
 		
 		$data = array( 'return' => $_MESS[3] .'-'.$sql);
@@ -125,10 +114,8 @@
 		}
 	}
 	
-// 	echo $sql .'<br/>';
-
-	echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-	
+//	echo $sql .'<br/>';
+	echo json_encode($data);
 	exit();
 	
 	
@@ -138,7 +125,7 @@
 	function format_AAC($data) {
 	
 		$result = [];
-		$prefix = $GLOBALS['_PREFIX'][$GLOBALS['table']];
+		$prefix = $GLOBALS['_TABLE'][1][$GLOBALS['table']];
 		
 		foreach ($data as $element) {
 		
@@ -153,13 +140,13 @@
 	
 	function valid_url() {
 		
-		if (!isset($_GET['table']) | !isset($_GET['where']))	return $GLOBALS['_MESS'][0];
-
-		if (!in_array($_GET['table'], $GLOBALS['_TABLE']))	return $GLOBALS['_MESS'][1];
-
-		if ($_GET['where'] == $GLOBALS['_WHERE'][1] && (!isset($_GET['key']) | empty($_GET['key'])))	return $GLOBALS['_MESS'][2];
+		global $_MESS;
 		
-		if ($_GET['where'] == $GLOBALS['_WHERE'][2] && (!isset($_GET['key']) | empty($_GET['key'])))	return $GLOBALS['_MESS'][2];
+		if (!isset($_GET['table']) | !isset($_GET['where']))	return $_MESS[0];
+
+		if (!in_array($_GET['table'], $GLOBALS['_TABLE'][0]))	return $_MESS[1];
+
+		if ($_GET['where'] == $GLOBALS['_WHERE'][1] && (!isset($_GET['key']) | empty($_GET['key'])))	return $_MESS[2];
 
 	}
 	
@@ -170,17 +157,8 @@
 		if (!isset($_GET['key'])) $_GET['key'] = '';
 
 		if (!isset($_GET['mode']) || !in_array($_GET['mode'], $GLOBALS['_MODE'])) $_GET['mode'] = '';
-
-		if (!isset($_GET['order'])) $_GET['order'] = 'prefixX_name';
 		
 		array_walk($_GET, 'myTrim');
-	}
-	
-	function set_specials() {
-		
-		//mode AAC
-		if ($GLOBALS['mode'] == $GLOBALS['_MODE'][0])	$GLOBALS['where'] = $_GET['query'];
-		
 	}
 	
 	function myTrim(&$value) {
@@ -193,4 +171,4 @@
 		echo json_encode( array('error' => $message));
 		exit();
 	}
-
+	
