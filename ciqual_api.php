@@ -44,11 +44,11 @@
 	);
 	$_TABLE = array(
 					'alim',
-//					'categories'
+					'alim_grp'
 	);
 	$_PREFIX = array(
 					'alim' => 'alim',
-//					'categories' => 'cat'
+					'alim_grp' => 'alim_grp'
 	);
 	$_WHERE = array(
 					'_ALL',

@@ -39,9 +39,17 @@ print_r($sql);
 
 - importation des exclusions de groupes
 
+CREATE TABLE `alim_grp_not` (
+  `alim_grp_code` varchar(20) CHARACTER SET latin1 DEFAULT NULL,
+  `alim_ssgrp_code` varchar(20) CHARACTER SET latin1 DEFAULT NULL,
+  `alim_ssssgrp_code` varchar(20) CHARACTER SET latin1 DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 LOAD DATA INFILE 'C:/xampp/htdocs/workdev/ciqual2_api/Code a exclure table Ciqual 2017.csv' 
 INTO TABLE alim_grp_not 
 CHARACTER SET UTF8 FIELDS TERMINATED BY ';' ENCLOSED BY '' LINES TERMINATED BY '\n'
+
+ALTER TABLE `alim_grp` ADD `tag` VARCHAR(1) NULL AFTER `alim_ssssgrp_nom_eng`;
 
 - tag des groupes à exclure
 
