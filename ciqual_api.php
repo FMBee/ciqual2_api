@@ -4,30 +4,28 @@
 	 * appel PHP par [$data = file_get_contents($url);]
 	 * 
 	 * $url = {serveur}/ciqual_api.php?table=?&where=?[values=?][&key=?][mode=_AAC]
-	 * table 	: {ingredients, categories}
+	 * table 	: {alim, alim_grp}
 	 * where 	: {_ALL, _KEY, [recherche]}
 	 * 				_ALL : tous les enregistrements
 	 * 				_KEY : un enregistrement -> associer l'argument [key]
 	 * 				_CAT : ingredients d'une catégories -> associer l'argument [key={cat_code}]
 	 * 				[recherche] : partie du nom (%foo%)
 	 * values 	: {yes, no} / default:no 	//opère sur ingredients
-	 * key		: {ORIGGPCD, ORIGFDCD}
-	 * 				ORIGGPCD : code catégorie
-	 * 				ORIGFDCD : code ingrédient
-	 * order	: champs tri des résultats / default(auto):{ing_name, cat_name}
+	 * key		: {alim_code, alim_grp_code}
+	 * order	: champs tri des résultats / default(auto):{alim_name}
 	 * mode		: {_AAC, ~} / default:~
 	 * 				_AAC : AjaxAutoComplete	-> positionner [where=xx]
 	 * 
 	 * @return Json file avec ligne(s) de la base ou message 'error' ou message 'norecordsfound'
 	 * 
-	 * 	$url = '{serveur}/ciqual_api.php?table=categories&where=vian';
-	 * 	$url = '{serveur}/ciqual_api.php?table=categories&where=_ALL';
-	 * 	$url = '{serveur}/ciqual_api.php?table=ingredients&where=veau';
-	 * 	$url = '{serveur}/ciqual_api.php?table=ingredients&where=veau&values=yes';
-	 * 	$url = '{serveur}/ciqual_api.php?table=ingredients&where=_ALL';
-	 * 	$url = '{serveur}/ciqual_api.php?table=ingredients&where=_KEY&key=21515';
-	 * 	$url = '{serveur}/ciqual_api.php?table=ingredients&where=_KEY&key=21515&values=yes';
-	 * 	$url = '{serveur}/ciqual_api.php?table=categories&where=_ALL&mode=_AAC';
+	 * 	$url = '{serveur}/ciqual_api.php?table=alim_grp&where=vian';
+	 * 	$url = '{serveur}/ciqual_api.php?table=alim_grp&where=_ALL';
+	 * 	$url = '{serveur}/ciqual_api.php?table=alim&where=veau';
+	 * 	$url = '{serveur}/ciqual_api.php?table=alim&where=veau&values=yes';
+	 * 	$url = '{serveur}/ciqual_api.php?table=alim&where=_ALL';
+	 * 	$url = '{serveur}/ciqual_api.php?table=alim&where=_KEY&key=21515';
+	 * 	$url = '{serveur}/ciqual_api.php?table=alim&where=_KEY&key=21515&values=yes';
+	 * 	$url = '{serveur}/ciqual_api.php?table=alim_grp&where=_ALL&mode=_AAC';
 	 */
 
 	session_start();
@@ -95,13 +93,13 @@
 			$sql .= '';
 			break;
 		case $_WHERE[1]:
-			$sql .= ' WHERE prefixX_code = ' .$key;
+			$sql .= " WHERE trim(prefixX_code) = '{$key}'";
 			break;
 		case $_WHERE[2]:
-			$sql .= ' WHERE prefix1_code = ' .$key;
+			$sql .= " WHERE trim(prefix1_code) = '{$key}'";
 			break;
 		default: 
-			$sql .= " WHERE prefixX_name LIKE '%" .$where ."%'"; 
+			$sql .= " WHERE prefixX_name LIKE '%{$where}%'"; 
 	}
 	
 	$sql .= ' ORDER BY ' .$order;

@@ -37,6 +37,9 @@ print_r($sql);
 
 /* 	
 
+ATTENTION : les champs XML sont TOUS (warum..) encadrés par un ESPACE
+il faut donc tout trimmer dans les tests, recherches, etc., sur la base...
+
 - importation des exclusions de groupes
 
 CREATE TABLE `alim_grp_not` (
@@ -62,9 +65,9 @@ IN (SELECT concat(trim(b.alim_grp_code), trim(b.alim_ssgrp_code), trim(b.alim_ss
 
 CREATE or replace view alim_exclus as
 
-SELECT a.alim_code, a.alim_nom_fr, 
+SELECT a.alim_code, a.alim_nom_fr as aliment, 
 concat(trim(a.alim_grp_code),'-',trim(a.alim_ssgrp_code),'-',trim(a.alim_ssssgrp_code)) as categorie, 
-concat(b.alim_ssgrp_nom_fr, ' / ', b.alim_ssssgrp_nom_fr) as libelle 
+concat(b.alim_ssssgrp_nom_fr, ' | ', b.alim_ssgrp_nom_fr) as libelle 
 from alim a 
 join alim_grp b on a.alim_grp_code+a.alim_ssgrp_code+a.alim_ssssgrp_code 
 = b.alim_grp_code+b.alim_ssgrp_code+b.alim_ssssgrp_code 
@@ -72,16 +75,33 @@ where b.tag = 'E'
 order by categorie, a.alim_nom_fr
 
 
--liste des aliments avec categorie
+-liste des aliments valides
 
 CREATE or replace view alim_details as
 
-SELECT a.alim_code, a.alim_nom_fr, concat(trim(a.alim_grp_code),'-',trim(a.alim_ssgrp_code),'-',trim(a.alim_ssssgrp_code)) as categorie,  
-concat(a.alim_nom_fr, ' - ', b.alim_ssssgrp_nom_fr, ' - ', b.alim_ssgrp_nom_fr) as alim_name
+SELECT a.alim_code, a.alim_nom_fr, concat(trim(a.alim_grp_code),'-',trim(a.alim_ssgrp_code),'-',trim(a.alim_ssssgrp_code)) as alim_grp_code,  
+concat(a.alim_nom_fr, ' | ', b.alim_ssssgrp_nom_fr, ' | ', b.alim_ssgrp_nom_fr) as alim_name
 from alim a
 join alim_grp b on a.alim_grp_code+a.alim_ssgrp_code+a.alim_ssssgrp_code = b.alim_grp_code+b.alim_ssgrp_code+b.alim_ssssgrp_code
 where isnull(b.tag)
-order by categorie, a.alim_nom_fr
+order by alim_name
+
+
+- vue générale aliments avec constituants
+
+CREATE or replace view alim_values_details as
+
+SELECT a.alim_code, a.alim_nom_fr, concat(trim(a.alim_grp_code),'-',trim(a.alim_ssgrp_code),'-',trim(a.alim_ssssgrp_code)) as alim_grp_code,  
+concat(a.alim_nom_fr, ' | ', b.alim_ssssgrp_nom_fr, ' | ', b.alim_ssgrp_nom_fr) as alim_name, 
+c.const_code, d.const_nom_fr, c.teneur
+from alim a
+join alim_grp b on a.alim_grp_code+a.alim_ssgrp_code+a.alim_ssssgrp_code = b.alim_grp_code+b.alim_ssgrp_code+b.alim_ssssgrp_code 
+join compo c on 
+a.alim_code = c.alim_code 
+join const d on 
+c.const_code = d.const_code
+where isnull(b.tag)
+order by alim_name
 
 
 - liste des aliments sans categorie valide
@@ -95,17 +115,6 @@ where isnull(concat(b.alim_ssgrp_nom_fr, ' / ', b.alim_ssssgrp_nom_fr))
 order by categorie, a.alim_nom_fr
 
 
-- vue générale aliments avec constituants
-
-SELECT a.alim_code, a.alim_nom_fr, concat(trim(a.alim_grp_code),'-',trim(a.alim_ssgrp_code),'-',trim(a.alim_ssssgrp_code)) as categorie,  
-concat(b.alim_ssgrp_nom_fr, ' / ', b.alim_ssssgrp_nom_fr) as libelle, 
-c.const_code, d.const_nom_fr, c.teneur
-from alim a
-join alim_grp b on a.alim_grp_code+a.alim_ssgrp_code+a.alim_ssssgrp_code = b.alim_grp_code+b.alim_ssgrp_code+b.alim_ssssgrp_code 
-join compo c on 
-a.alim_code = c.alim_code 
-join const d on 
-c.const_code = d.const_code
 
 
 - divers
