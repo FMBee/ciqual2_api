@@ -28,17 +28,49 @@
  				." CHARACTER SET UTF8 "
  				." ROWS IDENTIFIED BY '<" .strtoupper($file) .">';"
  		; 
-print_r($sql); 	
+print_r($sql);
 
  		$req = $pdo->prepare($sql);
  		$req->execute();
  	}
-
+ 	
+ 	// exclusions de groupes
+ 	sqlDo(	$pdo,
+	 	"UPDATE alim_grp a
+	 	SET tag = 'E'
+	 	where concat(trim(a.alim_grp_code), trim(a.alim_ssgrp_code), trim(a.alim_ssssgrp_code))
+	 	IN (SELECT concat(trim(b.alim_grp_code), trim(b.alim_ssgrp_code), trim(b.alim_ssssgrp_code)) from alim_grp_not b)"
+ 	);
+ 	
+//end 	
+ 	
+ 	
+ 	function sqlDo($pdo, $sql, $fetch=0) {
+ 	
+print_r($sql);
+ 		$req = $pdo->prepare($sql);
+ 		$result = $req->execute();
+ 	
+ 		switch ($fetch) {
+ 	
+ 			case 0:
+ 				return $result;
+ 	
+ 			case 1:
+ 				return $req->fetch(PDO::FETCH_ASSOC);
+ 					
+ 			case 2:
+ 				return $req->fetchAll(PDO::FETCH_ASSOC);
+ 					
+ 		}
+ 	}
 
 /* 	
 
-ATTENTION : les champs XML sont TOUS (warum..) encadrés par un ESPACE
-il faut donc tout trimmer dans les tests, recherches, etc., sur la base...
+ATTENTION : 
+- les champs XML sont TOUS (warum..) encadrés par un ESPACE
+(dans les scripts tout est donc trimmé dans les tests, recherches, .., sur les tables
+- le fichier alim_grp_xxx.xml contient des 'E dans l'O' -> à remplacer sous notepad/blocnote avant import
 
 - importation des exclusions de groupes
 
@@ -47,12 +79,12 @@ CREATE TABLE `alim_grp_not` (
   `alim_ssgrp_code` varchar(20) CHARACTER SET latin1 DEFAULT NULL,
   `alim_ssssgrp_code` varchar(20) CHARACTER SET latin1 DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE `alim_grp` ADD `tag` VARCHAR(1) NULL AFTER `alim_ssssgrp_nom_eng`;
 
 LOAD DATA INFILE 'C:/xampp/htdocs/workdev/ciqual2_api/Code a exclure table Ciqual 2017.csv' 
 INTO TABLE alim_grp_not 
 CHARACTER SET UTF8 FIELDS TERMINATED BY ';' ENCLOSED BY '' LINES TERMINATED BY '\n'
 
-ALTER TABLE `alim_grp` ADD `tag` VARCHAR(1) NULL AFTER `alim_ssssgrp_nom_eng`;
 
 - tag des groupes à exclure
 

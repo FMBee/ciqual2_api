@@ -7,7 +7,7 @@
 			'alim',
 			'alim_grp',
 			'compo',
-			'const'
+			'const',
 // 			'sources'	// inutile et volumineux
 	);
 

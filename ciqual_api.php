@@ -3,12 +3,17 @@
 	/**
 	 * appel PHP par [$data = file_get_contents($url);]
 	 * 
+	 * recherche par defaut sur le nom d'un aliment et ses deux sous-categories
+	 * alim_name = concat(a.alim_nom_fr, ' | ', b.alim_ssssgrp_nom_fr, ' | ', b.alim_ssgrp_nom_fr)
+	 * la categorie (alim_grp_nom_gr) n'est pas intégrée car trop générale
+	 * 
+	 * API:
 	 * $url = {serveur}/ciqual_api.php?table=?&where=?[values=?][&key=?][mode=_AAC]
 	 * table 	: {alim, alim_grp}
 	 * where 	: {_ALL, _KEY, [recherche]}
 	 * 				_ALL : tous les enregistrements
 	 * 				_KEY : un enregistrement -> associer l'argument [key]
-	 * 				_CAT : ingredients d'une catégories -> associer l'argument [key={cat_code}]
+	 * 				_CAT : ingredients d'une catégories -> associer l'argument [key={alim_grp_code}]
 	 * 				[recherche] : partie du nom (%foo%)
 	 * values 	: {yes, no} / default:no 	//opère sur ingredients
 	 * key		: {alim_code, alim_grp_code}
