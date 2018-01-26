@@ -172,7 +172,7 @@ where b.tag = 'E'
 order by categorie, a.alim_nom_fr
 
 
-- vue generale aliments valides
+- vue generale aliments valides (pas de tri trop gourmand)
 
 CREATE or replace view alim_details as
 
@@ -181,10 +181,9 @@ concat(a.alim_nom_fr, ' | ', b.alim_ssssgrp_nom_fr, ' | ', b.alim_ssgrp_nom_fr) 
 from alim a
 join alim_grp b on a.alim_grp_code+a.alim_ssgrp_code+a.alim_ssssgrp_code = b.alim_grp_code+b.alim_ssgrp_code+b.alim_ssssgrp_code
 where isnull(b.tag)
-order by alim_name
 
 
-- vue générale aliments avec constituants
+- vue générale aliments avec constituants (pas de tri trop gourmand)
 
 CREATE or replace view alim_values_details as
 
@@ -196,7 +195,12 @@ join alim_grp b on a.alim_grp_code+a.alim_ssgrp_code+a.alim_ssssgrp_code = b.ali
 join compo c on a.alim_code = c.alim_code 
 join const d on c.const_code = d.const_code
 where isnull(b.tag)
-order by alim_name
+
+test: 
+SELECT * FROM alim_values_details 
+WHERE alim_code = ' 1005'	// pas de trim() sur clé, 100x plus long !
+
+ORDER by const_code 	// 10x plus long
 
 
 - vue générale aliments ajoutés avec constituants, tous, pour controle des NULL

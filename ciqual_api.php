@@ -35,6 +35,7 @@
 
 	session_start();
 	header('Content-Type: application/json; charset=UTF-8');
+// print_r($_GET);	
 
 	include('defines.php');
 	
@@ -65,8 +66,7 @@
 	$_MODE = array(
 					'_AAC'
 	);
-	
-	if (! empty($error = valid_url()) )	error($error);
+	if (! empty($error = valid_url()) )		 { error($error); }
 	
 	try {
 		$pdo = new PDO(_DBSERVER, _DBUSER, _DBPWD);
@@ -87,7 +87,7 @@
 	
 	set_specials();
 	
-	$sql  = 'SELECT *';
+	$sql = 'SELECT *';
 	$sql .= ' FROM ' .$table;
 	$sql .= ( $table == $_TABLE[0] && $values == $_VALUES[0] ? '_values' : '' );	//valeurs ingrédient
 	$sql .= '_details ';
@@ -98,10 +98,10 @@
 			$sql .= '';
 			break;
 		case $_WHERE[1]:
-			$sql .= " WHERE trim(prefixX_code) = '{$key}'";
+			$sql .= " WHERE prefixX_code = '{$key}'";
 			break;
 		case $_WHERE[2]:
-			$sql .= " WHERE trim(prefix1_code) = '{$key}'";
+			$sql .= " WHERE prefix1_code = '{$key}'";
 			break;
 		default: 
 			$sql .= " WHERE prefixX_name LIKE '%{$where}%'"; 
@@ -112,7 +112,7 @@
 	$sql = str_replace('prefixX', $_PREFIX[ $table ], $sql);
 	$sql = str_replace('prefix0', $_PREFIX[ $_TABLE[0] ], $sql);
 	$sql = str_replace('prefix1', $_PREFIX[ $_TABLE[1] ], $sql);
-	
+
 	$req = $pdo->prepare($sql);
 	$req->execute();
 	$data = $req->fetchAll(PDO::FETCH_ASSOC);
@@ -129,7 +129,6 @@
 	}
 	
 // 	echo $sql .'<br/>';
-
 	echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 	
 	exit();
@@ -176,7 +175,7 @@
 
 		if (!isset($_GET['order'])) $_GET['order'] = 'prefixX_name';
 		
-		array_walk($_GET, 'myTrim');
+// 		array_walk($_GET, 'myTrim');
 	}
 	
 	function set_specials() {
@@ -193,7 +192,7 @@
 	
 	function error($message) {
 		
-		echo json_encode( array('error' => $message));
+		echo json_encode( array('error' => $message .' - ' .print_r($_GET, true)));
 		exit();
 	}
 
