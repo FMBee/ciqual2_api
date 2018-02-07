@@ -135,7 +135,13 @@ prt('aliments ajoutes : controle des NULL');prt($results);
 ATTENTION : 
 - les champs XML sont TOUS (warum..) encadrés par un ESPACE
 (dans les scripts tout est donc trimmé dans les tests, recherches, .., sur les tables
+
 - le fichier alim_grp_xxx.xml contient des 'E dans l'O' -> à remplacer sous notepad/blocnote avant import
+
+- la table alim_grp contiendra des ss-ss-groupes vides contenant un tiret
+  remplacer par le nom du groupe
+ 
+UPDATE alim_grp SET alim_ssssgrp_nom_fr = alim_grp_nom_fr WHERE alim_ssssgrp_nom_fr = ' - '		// attention aux espaces
 
 - importation des exclusions de groupes
 
