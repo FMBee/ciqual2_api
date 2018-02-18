@@ -3,8 +3,6 @@
  * c:/../php ciqual_import.php
  * 		pour importer un seul fichier commenter le tableau dans defines.php
  * 
- * c:/../php ciqual_import.php add
- * 		pour importer les aliments ajoutés (alim_add) dans la table (alim)
  */
  	include('defines.php');
  
@@ -62,47 +60,6 @@ prt($sql);
  	);
 prt('aliments sans categorie valide');prt($results); 
  	
- 	// aliments ajoutés (alim_add) sans categorie valide
- 	$results = sqlDo(	$pdo,
-		"SELECT a.alim_code, a.alim_nom_fr, 
-		concat(trim(a.alim_grp_code),'-',trim(a.alim_ssgrp_code),'-',trim(a.alim_ssssgrp_code)) as categorie, 
-		b.alim_grp_code
-		FROM alim_add a left join alim_grp b 
-		on a.alim_grp_code+a.alim_ssgrp_code+a.alim_ssssgrp_code = b.alim_grp_code+b.alim_ssgrp_code+b.alim_ssssgrp_code 
-		WHERE isnull(b.alim_grp_code) 
-		order by categorie, a.alim_nom_fr",
- 		2
- 	);
-prt('aliments ajoutes sans categorie valide');prt($results); 
-
- 	// aliments ajoutés (alim_add) : liste détaillée des valeurs pour controle des NULL
- 	$results = sqlDo(	$pdo,
-		"SELECT a.alim_code, a.alim_nom_fr, concat(trim(a.alim_grp_code),'-',trim(a.alim_ssgrp_code),'-',trim(a.alim_ssssgrp_code)) as alim_grp_code,
-		b.alim_grp_code as groupe, c.const_code as compo
-		from alim_add a
-		left join alim_grp b on a.alim_grp_code+a.alim_ssgrp_code+a.alim_ssssgrp_code = b.alim_grp_code+b.alim_ssgrp_code+b.alim_ssssgrp_code
-		left join compo_add c on a.alim_code = c.alim_code
-		order by alim_code",
- 		2
- 	);
-prt('aliments ajoutes : controle des NULL');prt($results); 
-
-
-	// ajout des aliments internes (alim_add)
-	if ( isset($argv[1]) && $argv[1] == 'add' ) {
-		
-		die('copie');//duplicate tables before ?
-		sqlDo(	$pdo,
-		 	"INSERT IGNORE into alim (alim_code, alim_grp_code, alim_ssgrp_code, alim_ssssgrp_code,alim_nom_fr) 
-			 	SELECT b.alim_code, b.alim_grp_code, b.alim_ssgrp_code, b.alim_ssssgrp_code,b.alim_nom_fr 
-			 	FROM alim_add b"
-		);
-		sqlDo(	$pdo,
-			"INSERT IGNORE into compo (alim_code, const_code, teneur)
-				SELECT b.alim_code, b.const_code, b.teneur
-				FROM compo_add b"
-		);
-	}
 //end 	
  	
  	function sqlDo($pdo, $sql, $fetch=0) {
