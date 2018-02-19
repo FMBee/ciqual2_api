@@ -1,12 +1,12 @@
 <?php
 
-// ATTENTION EBAUCHE
-
 /*
- * c:/../php ciqual_add.php [add]
- * 		pour importer des aliments depuis un CSV sur le modèle de TableCiqual2017.xls
- *   - sans option : test 
- *   - option add : insert dans les tables
+ * c:/../php ciqual_add.php [ING/CAT]
+ * 
+ * 		pour importer des ingredients internes ING
+ * 		ou des groupes/categories CAT
+ * 
+ * 		parametrer les tableaux ci-après
  */
 
 	
@@ -26,11 +26,30 @@
  		die('Erreur de connexion Mysql');
  	}
 
-	$results = sqlDo($pdo,
-	 	"SELECT * from alim_add",
-		2
-	);
-prt('aliments ajoutes');prt($results);
+ 	// à mofifier
+ 	$paramGroupe = array(
+ 		'99',	
+ 		'9999',	
+ 		'999999',	
+ 		'Pâtisserie BASE CATEGORIE BOULPAT',	
+ 		'Pâtisserie BASE CATEGORIE BOULPAT',	
+ 		'Pâtisserie BASE CATEGORIE BOULPAT'
+ 	);
+ 	
+ 	$sqlGroupe = "
+ 		INSERT INTO alim_grp SET
+ 			alim_grp_code			= concat(' ', ?, ' '),
+ 			alim_ssgrp_code			= concat(' ', ?, ' '),
+ 			alim_ssssgrp_code		= concat(' ', ?, ' '),
+ 			alim_grp_nom_fr			= concat(' ', ?, ' '),
+ 			alim_ssgrp_nom_fr		= concat(' ', ?, ' '),
+ 			alim_ssssgrp_nom_fr		= concat(' ', ?, ' '),
+ 	";
+ 	
+ 	if ( $_argv)
+	sqlDo($pdo, $sqlGroupe, $paramGroupe);
+
+prt('groupe ajouté');
 
 //end 	
  	
@@ -38,10 +57,8 @@ prt('aliments ajoutes');prt($results);
  	
 // prt($sql);
  		$req = $pdo->prepare($sql);
- 		$result = $req->execute();
+ 		$result = $req->execute( count($params) ? $params : null );
 
- 		$exec = $query->execute( count($params) ? $params : null );
- 		 
  		if( $result ){
  			 
 	 		switch ($fetch) {
