@@ -117,7 +117,7 @@
 	$req->execute();
 	$data = $req->fetchAll(PDO::FETCH_ASSOC);
 	
-	if (!$data)	{
+	if ( !is_array($data) )	{
 		
 		$data = array( 'return' => $_MESS[3] .'-'.$sql);
 	}
