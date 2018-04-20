@@ -18,6 +18,7 @@
  	}
 /* 	
  	// pour importer un seul fichier commenter le tableau dans defines.php
+ 	 
  	foreach( $_LIST_FILES as $file ) {
  		
 	 	$filein  = _CIQUAL_PATH	.str_replace('XXX', $file, _MODEL_FILE);
@@ -42,6 +43,7 @@ prt($sql);
  	}
  	
  	// exclusions de groupes
+ 	 
  	sqlDo(	$pdo,
 	 	"UPDATE alim_grp a
 	 	SET tag = 'E'
@@ -50,6 +52,7 @@ prt($sql);
  	);
 
  	// aliments sans categorie valide
+ 	 
  	$results = sqlDo(	$pdo,
 		"SELECT a.alim_code, a.alim_nom_fr, 
 		concat(trim(a.alim_grp_code),'-',trim(a.alim_ssgrp_code),'-',trim(a.alim_ssssgrp_code)) as categorie, 
@@ -67,44 +70,44 @@ prt('aliments sans categorie valide');prt($results);
  	
  	$results = sqlDo(	$pdo,
 		"SELECT a.alim_code, a.alim_nom_fr FROM alim a join compo c on a.alim_code = c.alim_code 
- 			where trim(c.const_code)='327' and cast(c.teneur as int)=0 ORDER BY a.alim_code limit 50",
+ 			where trim(c.const_code) = '327' and cast(c.teneur as int) = 0 ORDER BY a.alim_code",
  		2
  	);
  	
  	foreach ( $results as $ligne ) {
  		
  		$glucides = sqlDo(	$pdo, 
- 							"SELECT const_code, teneur from compo where alim_code = {$ligne['alim_code']} and trim(const_code) = '31000'",
+ 							"SELECT const_code, teneur from compo where alim_code = '{$ligne['alim_code']}' and trim(const_code) = '31000'",
  							1 )['teneur'];
  		$glucides = (float) str_replace(',', '.', $glucides);
  		
  		$lipides = sqlDo(	$pdo, 
- 							"SELECT const_code, teneur from compo where alim_code = {$ligne['alim_code']} and trim(const_code) = '40000'",
+ 							"SELECT const_code, teneur from compo where alim_code = '{$ligne['alim_code']}' and trim(const_code) = '40000'",
  							1 )['teneur'];
  		$lipides = (float) str_replace(',', '.', $lipides);
  		
  		$protides = sqlDo(	$pdo, 
- 							"SELECT const_code, teneur from compo where alim_code = {$ligne['alim_code']} and trim(const_code) = '25000'",
+ 							"SELECT const_code, teneur from compo where alim_code = '{$ligne['alim_code']}' and trim(const_code) = '25000'",
  							1 )['teneur'];
  		$protides = (float) str_replace(',', '.', $protides);
  		
  		$polyols = sqlDo(	$pdo, 
- 							"SELECT const_code, teneur from compo where alim_code = {$ligne['alim_code']} and trim(const_code) = '34000'",
+ 							"SELECT const_code, teneur from compo where alim_code = '{$ligne['alim_code']}' and trim(const_code) = '34000'",
  							1 )['teneur'];
  		$polyols = (float) str_replace(',', '.', $polyols);
  		
  		$fibres = sqlDo(	$pdo, 
- 							"SELECT const_code, teneur from compo where alim_code = {$ligne['alim_code']} and trim(const_code) = '34100'",
+ 							"SELECT const_code, teneur from compo where alim_code = '{$ligne['alim_code']}' and trim(const_code) = '34100'",
  							1 )['teneur'];
  		$fibres = (float) str_replace(',', '.', $fibres);
  		
  		$alcool = sqlDo(	$pdo, 
- 							"SELECT const_code, teneur from compo where alim_code = {$ligne['alim_code']} and trim(const_code) = '60000'",
+ 							"SELECT const_code, teneur from compo where alim_code = '{$ligne['alim_code']}' and trim(const_code) = '60000'",
  							1 )['teneur'];
  		$alcool = (float) str_replace(',', '.', $alcool);
  		
  		$acides = sqlDo(	$pdo, 
- 							"SELECT const_code, teneur from compo where alim_code = {$ligne['alim_code']} and trim(const_code) = '65000'",
+ 							"SELECT const_code, teneur from compo where alim_code = '{$ligne['alim_code']}' and trim(const_code) = '65000'",
  							1 )['teneur'];
  		$acides = (float) str_replace(',', '.', $acides);
 
@@ -113,7 +116,7 @@ prt('aliments sans categorie valide');prt($results);
  		// 17 x (Protéines + (Glucides – Polyols)) + 37 x Matières grasses + 8 x Fibres + 10 x Polyols + 29 x Alcool + 13 x acide organique
  		$ENkJ =	17 * ($protides + ($glucides - $polyols)) +
  				37 * $lipides +
- 				8 * $fibres +
+ 				8  * $fibres +
  				10 * $polyols +
  				29 * $alcool + 
  				13 * $acides ;
@@ -129,23 +132,39 @@ prt('aliments sans categorie valide');prt($results);
  				3 * $acides ;
  		$ENkC = (string)round($ENkC);
  		
- 		prt('Code aliment: '.$ligne['alim_code']);					
- 		prt('Nom aliment: '.$ligne['alim_nom_fr']);					
- 		prt('EN kJ: '.$ENkJ);					
- 		prt('EN kCal: '.$ENkC);	
- 		prt('---');
+//  		prt('Code aliment: '.$ligne['alim_code']);					
+//  		prt('Nom aliment: '.$ligne['alim_nom_fr']);					
+//  		prt('EN kJ: '.$ENkJ);					
+//  		prt('EN kCal: '.$ENkC);	
+//  		prt('---');
+
+ 		sqlDo(	$pdo,
+ 				"UPDATE compo set teneur = {$ENkJ} where alim_code = '{$ligne['alim_code']}' and trim(const_code) = '327'"
+ 				);
+ 		sqlDo(	$pdo,
+ 				"UPDATE compo set teneur = {$ENkC} where alim_code = '{$ligne['alim_code']}' and trim(const_code) = '328'"
+ 				);
  	}
  	
- 	
- 	
+prt(count($results).' aliments recalcules (Energie)');
 //end 	
+ 	
+ 	
+ 	
+//**************************	
  	
  	function sqlDo($pdo, $sql, $fetch=0) {
  	
 // prt($sql);
  		$req = $pdo->prepare($sql);
  		$result = $req->execute();
- 	
+ 		
+ 		if ( !$result ) {
+ 			
+ 			prt($req->errorInfo()[2] ." / Erreur de requete : {$sql}");
+ 			die();
+ 		}
+ 				
  		switch ($fetch) {
  	
  			case 0:
