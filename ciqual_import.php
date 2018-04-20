@@ -16,7 +16,7 @@
  	
  		die('Erreur de connexion Mysql');
  	}
-/* 	
+	
  	// pour importer un seul fichier commenter le tableau dans defines.php
  	 
  	foreach( $_LIST_FILES as $file ) {
@@ -64,13 +64,13 @@ prt($sql);
  		2
  	);
 prt('aliments sans categorie valide');prt($results); 
-*/
+
  	
  	// aliments avec Energie à zéro
  	
  	$results = sqlDo(	$pdo,
 		"SELECT a.alim_code, a.alim_nom_fr FROM alim a join compo c on a.alim_code = c.alim_code 
- 			where trim(c.const_code) = '327' and cast(c.teneur as int) = 0 ORDER BY a.alim_code",
+ 			where trim(c.const_code) = '327' and cast(c.teneur as unsigned) = 0 ORDER BY a.alim_code",
  		2
  	);
  	
